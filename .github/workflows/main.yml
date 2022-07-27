@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  REGISTRY: koteikin/ci-cd-flask-app
+  REGISTRY: 0xforx/ci-cd-flask-app
 
 jobs:
   lint:
