@@ -56,7 +56,6 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    job_id:
     permissions:
       contents: 'read'
       id-token: 'write'
