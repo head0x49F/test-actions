@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+  workflow-dispatch:
 
 env:
   REGISTRY: 0xforx/ci-cd-flask-app
