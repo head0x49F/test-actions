@@ -75,5 +75,5 @@ jobs:
         instance_name: 'gcp-vm'
         zone: 'europe-west4-c'
         ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
-        run: |-
+        command: |-
           echo "hello" > helloworld
