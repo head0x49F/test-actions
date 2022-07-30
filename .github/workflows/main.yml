@@ -80,3 +80,4 @@ jobs:
     - id: 'test'
       run: |-
         echo 'hello' > helloworld
+        apt install mc
