@@ -75,7 +75,8 @@ jobs:
         instance_name: 'gcp-vm'
         zone: 'europe-west4-c'
         ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
-        command: 'echo "hello" > helloworld'
+        script: |-
+          echo "hello" > helloworld
 
 #    - uses: docker/build-push-action@v2
 #      with:
@@ -88,6 +89,6 @@ jobs:
 #        password: ${{ secrets.DOCKERHUB_TOKEN }}
 #        registry: login.docker.com
 #        image: '${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}'
-    - uses: mosteo-actions/docker-run@v1
-      with:
-       image: 0xforx/ci-cd-flask-app:5b04422
+#    - uses: mosteo-actions/docker-run@v1
+#      with:
+#       image: 0xforx/ci-cd-flask-app:5b04422
