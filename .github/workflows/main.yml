@@ -77,10 +77,10 @@ jobs:
         ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
         command: 'echo "hello" > helloworld'
 
-    - id: 'Set up Cloud SDK'
+    - id: 'Set-up-Cloud-SDK'
       uses: 'google-github-actions/setup-gcloud@v0'
 
-    - id: 'Use gcloud CLI'
+    - id: 'Use-gcloud-CLI'
       run: 'gcloud info > hello.txt'
 
 #    - uses: docker/build-push-action@v2
