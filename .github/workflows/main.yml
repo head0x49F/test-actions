@@ -75,7 +75,13 @@ jobs:
         instance_name: 'gcp-vm'
         zone: 'europe-west4-c'
         ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
-        script: 'echo "hello" > helloworld'
+        command: 'echo "hello" > helloworld'
+
+    - id: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v0'
+
+    - id: 'Use gcloud CLI'
+      run: 'gcloud info > hello.txt'
 
 #    - uses: docker/build-push-action@v2
 #      with:
