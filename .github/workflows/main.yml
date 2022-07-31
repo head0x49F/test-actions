@@ -90,4 +90,4 @@ jobs:
 #        image: '${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}'
     - uses: mosteo-actions/docker-run@v1
       with:
-       image: '{{ env.REGISTRY }}'
+       image: 0xforx/ci-cd-flask-app:5b04422
