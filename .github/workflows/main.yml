@@ -83,5 +83,5 @@ jobs:
 #        push: false
     - uses: addnab/docker-run-action@v3
       with:
-        image: ${{ IMAGE }}:${{ steps.commit_hash.outputs.commit_hash }}
+        image: ${{ env.IMAGE }}:${{ steps.commit_hash.outputs.commit_hash }}
         run: echo "hello world"
