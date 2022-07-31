@@ -77,7 +77,11 @@ jobs:
         ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
         command: 'echo "hello" > helloworld'
 
-    - id: 'test'
-      run: |-
-        echo 'hello' > helloworld
-        apt install mc
+#    - uses: docker/build-push-action@v2
+#      with:
+#        tags: ${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}
+#        push: false
+    - uses: addnab/docker-run-action@v3
+      with:
+        image: ${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}
+        run: echo "hello world"
