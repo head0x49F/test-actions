@@ -84,5 +84,5 @@ jobs:
     - uses: addnab/docker-run-action@v3
       with:
         registry: hub.docker.com
-        image: ${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }
+        image: ${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}
 #        run: echo "hello world"
