@@ -81,8 +81,7 @@ jobs:
 #      with:
 #        tags: ${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}
 #        push: false
-    - uses: addnab/docker-run-action@v3
+
+    - uses: 'mosteo-actions/docker-run@v1'
       with:
-        registry: hub.docker.com
-        image: ${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}
-#        run: echo "hello world"
+       image: ${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}
