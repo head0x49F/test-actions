@@ -50,7 +50,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          push: false
+          push: true
           tags: |
             ${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}
 
@@ -86,8 +86,8 @@ jobs:
       with:
 #        username: ${{ secrets.DOCKERHUB_USERNAME}}
 #        password: ${{ secrets.DOCKERHUB_TOKEN }}
-        registry: login.docker.com
-        image: ${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}
+#        registry: login.docker.com
+        image: '${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}'
 #    - uses: 'mosteo-actions/docker-run@v1'
 #      with:
 #       image: ${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}
