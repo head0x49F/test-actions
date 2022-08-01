@@ -10,7 +10,7 @@ env:
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
   GCE_INSTANCE: gcp-vm  # TODO: update to instance name
   GCE_INSTANCE_ZONE: europe-west4-c   # TODO: update to instance zone
-  TAG: ${{ env.GITHUB_SHA::7 }}
+  TAG: ${{ github.sha }}
 jobs:
   lint:
     runs-on: ubuntu-latest
