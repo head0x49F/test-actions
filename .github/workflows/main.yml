@@ -77,14 +77,14 @@ jobs:
         ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
         command: 'echo "1" > helloworld1'
 
-    - name: 'My-experiment'
-      uses: docker://$REGISTRY:commit_hash
-
     - id: 'Set-up-Cloud-SDK'
       uses: 'google-github-actions/setup-gcloud@v0'
 
+    - id: 'build_dock_im'
+      run: 'gcloud builds submit --tag gcr.io/{{ secrets.PROJECT_ID }}/sectionapp'
+
     - id: 'Use-gcloud-CLI'
-      run: 'gcloud info > hello.txt'
+      run: 'gcloud compute instances create-with-container section-instance --container-image gcr.io/{{ secrets.PROJECT_ID }}/sectionapp'
 
 #    - uses: docker/build-push-action@v2
 #      with:
