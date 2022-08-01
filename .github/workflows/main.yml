@@ -3,7 +3,8 @@ name: Build and Deploy to Google Compute Engine
 on:
   push:
     branches:
-    - 'main'
+    - main
+  workflow_dispatch:
 
 env:
   PROJECT_ID: ${{ secrets.GCE_PROJECT }}
