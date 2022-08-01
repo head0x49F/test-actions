@@ -8,8 +8,8 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
-  GCE_INSTANCE: gcp-vm  # TODO: update to instance name
-  GCE_INSTANCE_ZONE: europe-west4-c   # TODO: update to instance zone
+  GCE_INSTANCE: cos-test  # TODO: update to instance name
+  GCE_INSTANCE_ZONE: us-central1-a   # TODO: update to instance zone
   TAG: ${{ github.sha }}
 jobs:
   lint:
