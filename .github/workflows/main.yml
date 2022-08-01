@@ -75,7 +75,10 @@ jobs:
         instance_name: 'gcp-vm'
         zone: 'europe-west4-c'
         ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
-        command: 'docker run ${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}'
+        command: 'echo "1" > helloworld1'
+
+    - name: 'My-experiment'
+      uses: docker://{{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}
 
     - id: 'Set-up-Cloud-SDK'
       uses: 'google-github-actions/setup-gcloud@v0'
