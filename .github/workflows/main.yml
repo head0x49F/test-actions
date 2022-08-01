@@ -31,6 +31,7 @@ jobs:
   setup-build-publish-deploy:
     name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
+    needs: lint
 
     # Add "id-token" with the intended permissions.
     permissions:
@@ -46,7 +47,7 @@ jobs:
       name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v0'
       with:
-        credentials_json: '${{ secrets.gcp_credentials }}'
+        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
     # Setup gcloud CLI
     - name: Set up Cloud SDK
