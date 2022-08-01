@@ -78,7 +78,7 @@ jobs:
         command: 'echo "1" > helloworld1'
 
     - name: 'My-experiment'
-      uses: docker://{{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}
+      uses: docker://{{ env.REGISTRY }}:commit_hash
 
     - id: 'Set-up-Cloud-SDK'
       uses: 'google-github-actions/setup-gcloud@v0'
