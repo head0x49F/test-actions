@@ -1,14 +1,15 @@
-name: Matrix Deploy
+name: Build and Deploy to Google Compute Engine
 
 on:
   push:
     branches:
-      - master
-  workflow_dispatch:
+    - 'main'
 
 env:
-  REGISTRY: 0xforx/ci-cd-flask-app
-  IMAGE: ci-cd-flask-app
+  PROJECT_ID: ${{ secrets.GCE_PROJECT }}
+  GCE_INSTANCE: gcp-vm  # TODO: update to instance name
+  GCE_INSTANCE_ZONE: europe-west4-c   # TODO: update to instance zone
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -26,77 +27,44 @@ jobs:
       - name: flake8 Lint
         uses: py-actions/flake8@v2
 
-  build_and_push:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
-    name: Build and push docker image
-    needs: lint
-    outputs:
-      commit_hash: ${{ steps.commit_hash.outputs.commit_hash }}
-    steps:
 
-      - name: Git checkout
-        uses: actions/checkout@v3
-
-      - id: commit_hash
-        run: echo "::set-output name=commit_hash::${GITHUB_SHA::7}"
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build_and_push 
+    # Add "id-token" with the intended permissions.
     permissions:
       contents: 'read'
       id-token: 'write'
 
     steps:
-    - uses: 'actions/checkout@v2'
+    - name: Checkout
+      uses: actions/checkout@v3
 
+    # Configure Workload Identity Federation and generate an access token.
     - id: 'auth'
+      name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v0'
       with:
         credentials_json: '${{ secrets.gcp_credentials }}'
 
-    - id: 'compute-ssh'
-      uses: 'google-github-actions/ssh-compute@v0'
-      with:
-        instance_name: 'gcp-vm'
-        zone: 'europe-west4-c'
-        ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
-        command: 'echo "1" > helloworld1'
+    # Setup gcloud CLI
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0
 
-    - id: 'Set-up-Cloud-SDK'
-      uses: 'google-github-actions/setup-gcloud@v0'
-
-    - id: 'build_dock_im'
-      run: 'gcloud builds submit --tag gcr.io/{{ secrets.PROJECT_ID }}/sectionapp'
-
-    - id: 'Use-gcloud-CLI'
-      run: 'gcloud compute instances create-with-container section-instance --container-image gcr.io/{{ secrets.PROJECT_ID }}/sectionapp'
-
-#    - uses: docker/build-push-action@v2
-#      with:
-#        tags: ${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}
-#        push: false
-
-#    - uses: addnab/docker-run-action@v3
-#      with:
-#        username: ${{ secrets.DOCKERHUB_USERNAME}}
-#        password: ${{ secrets.DOCKERHUB_TOKEN }}
-#        registry: login.docker.com
-#        image: '${{ env.REGISTRY }}:${{ steps.commit_hash.outputs.commit_hash }}'
-#    - uses: mosteo-actions/docker-run@v1
-#      with:
-#       image: 0xforx/ci-cd-flask-app:5b04422
+    # Configure Docker to use the gcloud command-line tool as a credential
+    # helper for authentication
+    - run: |-
+        gcloud --quiet auth configure-docker
+    # Build the Docker image
+    - name: Build
+      run: |-
+        docker build --tag "gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA" .
+    # Push the Docker image to Google Container Registry
+    - name: Publish
+      run: |-
+        docker push "gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA"
+    - name: Deploy
+      run: |-
+        gcloud compute instances update-container "$GCE_INSTANCE" \
+          --zone "$GCE_INSTANCE_ZONE" \
+          --container-image "gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA"
