@@ -8,8 +8,8 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
-  GCE_INSTANCE: cos-test  # TODO: update to instance name
-  GCE_INSTANCE_ZONE: us-central1-a   # TODO: update to instance zone
+  GCE_INSTANCE: cos-test  
+  GCE_INSTANCE_ZONE: us-central1-a 
   TAG: ${{ github.sha }}
 jobs:
   lint:
@@ -29,11 +29,10 @@ jobs:
         uses: py-actions/flake8@v2
 
   setup-build-publish:
-    name: Setup, Build, Publish, and Deploy
+    name: Setup, Build, Publish
     runs-on: ubuntu-latest
     needs: lint
 
-    # Add "id-token" with the intended permissions.
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -42,9 +41,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    # Configure Workload Identity Federation and generate an access token.
-    - id: 'auth'
-      name: 'Authenticate to Google Cloud'
+    - name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v0'
       with:
         credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
@@ -71,18 +68,14 @@ jobs:
         docker push gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG
     
    
-    # Deploy container on a new VM instance
+    # Deploy container on VM instance
   deploy:
       name: Deploy container
       runs-on: ubuntu-latest
       needs: setup-build-publish
-#      env:
-#          PROJECT_ID: ${{ secrets.PROJECT_ID }}
-#          GCE_INSTANCE: cos-test  # TODO: update to instance name
-#          GCE_INSTANCE_ZONE: us-central1-a   # TODO: update to instance zone
-#          TAG: ${{ github.sha }}
+
       steps:
-      - name: Authenticate to Google Cloud
+      - name: Authenticate to Google Cloud again
         uses: 'google-github-actions/auth@v0'
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
@@ -91,17 +84,17 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
     
-    # F***g deploy again    
-      - name: Deploy  
+    # Deploy, actually...    
+      - name: Deploy
+        id: creation  
         run: |-
-          gcloud compute instances create-with-container $GCE_INSTANCE \
+          gcloud compute instances create-with-container  $GCE_INSTANCE \
           --zone $GCE_INSTANCE_ZONE \
           --container-image gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG \
-#          --750828343123-compute@developer.gserviceaccount.com  
-    
-    
-#    - name: Update
-#      run: |-
-#        gcloud compute instances update-container $GCE_INSTANCE \
-#          --zone $GCE_INSTANCE_ZONE \
-#          --container-image gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG
+
+      - name: Update container if already exists
+        if: ${{ failure() && steps.creation.conclusion == 'failure' }}
+        run: |-
+          gcloud compute instances update-container $GCE_INSTANCE \
+          --zone $GCE_INSTANCE_ZONE \
+          --container-image gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG \
