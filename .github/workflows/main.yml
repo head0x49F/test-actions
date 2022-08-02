@@ -28,7 +28,7 @@ jobs:
       - name: flake8 Lint
         uses: py-actions/flake8@v2
 
-  setup-build-publish-deploy:
+  setup-build-publish:
     name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
     needs: lint
@@ -70,13 +70,24 @@ jobs:
       run: |-
         docker push gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG
     
-    
+   
     # Deploy container on a new VM instance
-    - name: Deploy
-      run: |-
-        gcloud compute instances create-with-container $GCE_INSTANCE \
+  deploy:
+      name: Deploy container
+      runs-on: ubuntu-latest
+      needs: setup-build-publish
+      env:
+          PROJECT_ID: ${{ secrets.PROJECT_ID }}
+          GCE_INSTANCE: cos-test  # TODO: update to instance name
+          GCE_INSTANCE_ZONE: us-central1-a   # TODO: update to instance zone
+          TAG: ${{ github.sha }}
+      steps:
+      - name: Deploy  
+        run: |-
+          gcloud compute instances create-with-container $GCE_INSTANCE \
           --zone $GCE_INSTANCE_ZONE \
-          --container-image gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG    
+          --container-image gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG \
+#          --750828343123-compute@developer.gserviceaccount.com  
     
     
 #    - name: Update
