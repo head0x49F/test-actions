@@ -76,11 +76,11 @@ jobs:
       name: Deploy container
       runs-on: ubuntu-latest
       needs: setup-build-publish
-      env:
-          PROJECT_ID: ${{ secrets.PROJECT_ID }}
-          GCE_INSTANCE: cos-test  # TODO: update to instance name
-          GCE_INSTANCE_ZONE: us-central1-a   # TODO: update to instance zone
-          TAG: ${{ github.sha }}
+#      env:
+#          PROJECT_ID: ${{ secrets.PROJECT_ID }}
+#          GCE_INSTANCE: cos-test  # TODO: update to instance name
+#          GCE_INSTANCE_ZONE: us-central1-a   # TODO: update to instance zone
+#          TAG: ${{ github.sha }}
       steps:
       - name: Deploy  
         run: |-
