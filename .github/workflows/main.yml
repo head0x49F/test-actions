@@ -54,8 +54,14 @@ jobs:
     # helper for authentication
     - run: |-
         gcloud --quiet auth configure-docker
-    
-    
+
+    # Configure firewall
+    - name: Firewall rule
+      run: |-
+          gcloud compute --project=$PROJECT_ID firewall-rules create tcp-rule \
+          --direction=INGRESS --priority=1000 --network=default --action=ALLOW \
+          --rules=tcp:22,tcp:80,tcp:5000 --source-ranges=0.0.0.0/0    
+
     # Build the Docker image
     - name: Build
       run: |-
@@ -91,10 +97,32 @@ jobs:
           gcloud compute instances create-with-container  $GCE_INSTANCE \
           --zone $GCE_INSTANCE_ZONE \
           --container-image gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG \
+          && docker run helloworld
+
+
+
+
 
       - name: Update container if already exists
-        if: ${{ failure() && steps.creation.conclusion == 'failure' }}
+        id: update
+        if: ${{ failure() || steps.creation.conclusion == 'failure' }}
         run: |-
           gcloud compute instances update-container $GCE_INSTANCE \
           --zone $GCE_INSTANCE_ZONE \
           --container-image gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG \
+
+      - name: Clean Contaner Registry
+        if: ${{ success() || steps.update.conclusion == 'success' }}
+        run: |-
+          gcloud container images list-tags gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG  \
+          --filter="timestamp.date('%Y-%m-%d', Z)<'2022-08-01'" \
+          --format="get(digest)" --limit=999999 |  \
+          awk '{print "gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG @" $1}' | \
+          xargs gcloud container images delete --force-delete-tags --quiet
+
+
+
+
+
+
+
