@@ -9,7 +9,7 @@ on:
 env:
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
   GCE_INSTANCE: cos-test  
-  GCE_INSTANCE_ZONE: us-central1-a 
+  GCE_INSTANCE_ZONE: europe-west2-a
   TAG: ${{ github.sha }}
 jobs:
   lint:
