@@ -64,6 +64,7 @@ jobs:
 
     # Build the Docker image
     - name: Build
+      if: ${{ failure() || steps.creation.conclusion == 'failure' }}
       run: |-
         docker build --tag gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG .
     
