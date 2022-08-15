@@ -99,10 +99,6 @@ jobs:
           --container-image gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG \
           && docker run helloworld
 
-
-
-
-
       - name: Update container if already exists
         id: update
         if: ${{ failure() || steps.creation.conclusion == 'failure' }}
@@ -115,14 +111,7 @@ jobs:
         if: ${{ success() || steps.update.conclusion == 'success' }}
         run: |-
           gcloud container images list-tags gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG  \
-          --filter="timestamp.date('%Y-%m-%d', Z)<'2022-08-01'" \
+          --filter="timestamp.date('%Y-%m-%d', Z)<$(date --date='-7 days' +'%Y-%m-%d')" \
           --format="get(digest)" --limit=999999 |  \
-          awk '{print "gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG @" $1}' | \
-          xargs gcloud container images delete --force-delete-tags --quiet
-
-
-
-
-
-
-
+          awk '{print "'"gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$TAG @"'" $1}'  \
+          | xargs gcloud container images delete --project="${PROJECT_ID}" --force-delete-tags --quiet
