@@ -58,7 +58,7 @@ jobs:
     # Configure firewall
     - name: Firewall rule
       run: |-
-          gcloud compute firewall-rules create tcp-rule \
+          gcloud compute firewall-rules update tcp-rule \
           --direction=INGRESS --priority=1000 --network=default --action=ALLOW \
           --rules=tcp:22,tcp:80,tcp:5000 --source-ranges=0.0.0.0/0    
 
